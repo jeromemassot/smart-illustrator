@@ -1,0 +1,5 @@
+{
+  "name": "Smart-Illustrator",
+  "description": "An educational tool that generates age-adapted illustrations and explanations from documents or URLs using Gemini 3 Pro (Nano Banana Pro).",
+  "requestFramePermissions": []
+}
