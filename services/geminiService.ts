@@ -1,22 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { GenerationRequest, GenerationResult } from "../types";
 
-// This function checks and triggers the key selection flow required for Veo and Gemini 3 Pro Image
-export const ensureApiKeySelected = async (): Promise<boolean> => {
-  const win = window as any;
-  if (win.aistudio) {
-    const hasKey = await win.aistudio.hasSelectedApiKey();
-    if (!hasKey) {
-      await win.aistudio.openSelectKey();
-      // We assume success after the dialog interaction, 
-      // though robust apps might double check or handle cancellations.
-      return true; 
-    }
-    return true;
-  }
-  return false;
-};
-
 // We use two models:
 // 1. Flash for text reasoning/summarization/web grounding.
 // 2. Nano Banana Pro (Gemini 3 Pro Image) for the final visual.
@@ -25,17 +9,17 @@ const TEXT_MODEL = "gemini-2.5-flash";
 const IMAGE_MODEL = "gemini-3-pro-image-preview";
 
 export const generateContent = async (request: GenerationRequest): Promise<GenerationResult> => {
-  
+
   // 1. Initialize Client
   // Note: We create a new instance here to ensure we pick up the latest selected key if it changed.
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
   // 2. Step 1: Analyze content and generate text explanation + image prompt
-  
+
   const isUrl = request.sourceType === 'url';
-  
+
   let basePrompt = "";
-  
+
   if (isUrl) {
     basePrompt = `
       I have a URL: ${request.content}.
@@ -158,7 +142,7 @@ export const generateContent = async (request: GenerationRequest): Promise<Gener
   });
 
   let imageUrl = "";
-  
+
   // Iterate parts to find the image
   if (imageResponse.candidates?.[0]?.content?.parts) {
     for (const part of imageResponse.candidates[0].content.parts) {
