@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import InputSection from './components/InputSection';
 import ResultDisplay from './components/ResultDisplay';
-import KeySelectionModal from './components/KeySelectionModal';
 import { GenerationRequest, GenerationResult } from './types';
 import { generateContent } from './services/geminiService';
 
@@ -55,7 +54,7 @@ const App: React.FC = () => {
           <div className="flex items-center space-x-3">
             <img
               src="logo.jpeg"
-              alt="Med Illustrations Creator Logo"
+              alt="Seattle Children Hospital Logo"
               className="w-12 h-12 object-contain"
             />
             <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
