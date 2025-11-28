@@ -3,71 +3,30 @@ import InputSection from './components/InputSection';
 import ResultDisplay from './components/ResultDisplay';
 import KeySelectionModal from './components/KeySelectionModal';
 import { GenerationRequest, GenerationResult } from './types';
-import { ensureApiKeySelected, generateContent } from './services/geminiService';
+import { generateContent } from './services/geminiService';
 
 const App: React.FC = () => {
   const [result, setResult] = useState<GenerationResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showKeyModal, setShowKeyModal] = useState(false);
-  const [hasKey, setHasKey] = useState(false);
   const [lastRequest, setLastRequest] = useState<GenerationRequest | null>(null);
-
-  // Check key status on mount
-  useEffect(() => {
-    const checkKey = async () => {
-      const win = window as any;
-      if (win.aistudio) {
-        const selected = await win.aistudio.hasSelectedApiKey();
-        setHasKey(selected);
-      }
-    };
-    checkKey();
-  }, []);
-
-  const handleKeySelect = async () => {
-    try {
-      const win = window as any;
-      if (win.aistudio) {
-        await win.aistudio.openSelectKey();
-        setHasKey(true);
-        setShowKeyModal(false);
-      }
-    } catch (e) {
-      console.error("Key selection failed", e);
-      setError("Failed to select API key. Please try again.");
-    }
-  };
 
   const handleGenerate = async (request: GenerationRequest) => {
     setLastRequest(request);
     // Clear result to show loading state in InputSection or separate loader
-    setResult(null); 
+    setResult(null);
     setError(null);
     setLoading(true);
 
     try {
-      // 1. Ensure Key is selected (Nano Banana Pro Requirement)
-      const validKey = await ensureApiKeySelected();
-      if (!validKey && !hasKey) {
-        // Fallback if the direct helper didn't force the UI or failed
-        setShowKeyModal(true);
-        setLoading(false);
-        return;
-      }
-      setHasKey(true);
-
-      // 2. Process
+      // 1. Process
       const data = await generateContent(request);
       setResult(data);
 
     } catch (err: any) {
       console.error(err);
       if (err.message && err.message.includes("Requested entity was not found")) {
-        // Key might be invalid or project not found, force re-selection
-        setHasKey(false);
-        setShowKeyModal(true);
-        setError("The selected API Key seems invalid or expired. Please select a valid project.");
+        setError("The selected authentication protocol failed. Please contact support.");
       } else {
         setError(err.message || "An unexpected error occurred while generating content.");
       }
@@ -94,33 +53,26 @@ const App: React.FC = () => {
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <img 
-              src="logo.jpeg" 
-              alt="Med Illustrations Creator Logo" 
+            <img
+              src="logo.jpeg"
+              alt="Med Illustrations Creator Logo"
               className="w-12 h-12 object-contain"
             />
             <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
               Med Illustrations Creator
             </h1>
           </div>
-          
-          {hasKey && (
-            <div className="flex items-center space-x-2 text-sm text-green-600 bg-green-50 px-3 py-1 rounded-full border border-green-200">
-              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-              <span>Project Connected</span>
-            </div>
-          )}
         </div>
       </header>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
-        
+
         {/* Intro */}
         {!result && !loading && (
           <div className="text-center mb-10 max-w-2xl mx-auto">
             <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight sm:text-5xl mb-4">
-              Turn Medical Docs into <br/>
+              Turn Medical Docs into <br />
               <span className="text-indigo-600">Simple Illustrations</span>
             </h2>
             <p className="text-xl text-gray-500">
@@ -148,9 +100,9 @@ const App: React.FC = () => {
         {/* Content Area */}
         <div className="transition-all duration-500 ease-in-out">
           {result ? (
-            <ResultDisplay 
-              result={result} 
-              onReset={handleReset} 
+            <ResultDisplay
+              result={result}
+              onReset={handleReset}
               onRegenerate={handleRegenerate}
             />
           ) : (
@@ -158,11 +110,6 @@ const App: React.FC = () => {
           )}
         </div>
       </main>
-
-      {/* API Key Modal - displayed if logic demands it */}
-      {showKeyModal && !hasKey && (
-        <KeySelectionModal onSelect={handleKeySelect} />
-      )}
     </div>
   );
 };
