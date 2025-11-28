@@ -8,10 +8,7 @@ export enum AgeRange {
 export enum IllustrationStyle {
   OldFashion = "Old Fashion Scholar Book",
   WhiteBoard = "White Board Sketch",
-  Modern = "Modern Flat Vector",
-  ComicBook = "Comic Book",
-  OilPainting = "Oil Painting",
-  PixelArt = "Pixel Art"
+  Modern = "Modern Flat Vector"
 }
 
 export interface GenerationRequest {
